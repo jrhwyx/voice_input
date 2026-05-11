@@ -171,10 +171,10 @@ class VoiceInputApp:
                 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 
                 from faster_whisper import WhisperModel
-                self._gui_msg(("status", "正在下载/加载语音识别模型 (medium ~1.5GB)，首次运行可能需要几分钟..."))
+                self._gui_msg(("status", "正在下载/加载语音识别模型 (small ~500MB)，首次运行可能需要几分钟..."))
                 self.whisper_model = WhisperModel(
-                    "medium", device="cpu", compute_type="int8",
-                    num_workers=2
+                    "small", device="cpu", compute_type="int8",
+                    num_workers=4
                 )
                 self._gui_msg(("status", "就绪，请点击「开始录音」"))
                 self.state = "ready"
@@ -254,7 +254,7 @@ class VoiceInputApp:
             segments, info = self.whisper_model.transcribe(
                 self.audio_filepath,
                 language="zh",
-                beam_size=3,
+                beam_size=1,
                 vad_filter=True,
             )
             text_parts = []
@@ -297,8 +297,8 @@ class VoiceInputApp:
         try:
             client = Anthropic(api_key=api_key)
             response = client.messages.create(
-                model="claude-sonnet-4-6",
-                max_tokens=2000,
+                model="claude-haiku-4-5",
+                max_tokens=1000,
                 system="你是一个专业的文字编辑助手。你的任务是对语音识别后的中文文字进行整理。",
                 messages=[{
                     "role": "user",
