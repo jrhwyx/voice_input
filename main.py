@@ -194,7 +194,7 @@ class VoiceInputApp:
     # ─── Recording ──────────────────────────────────────────────────
 
     def start_recording(self):
-        if self.state != "ready":
+        if self.state not in ("ready", "done"):
             return
         self.state = "recording"
         self.recording_frames = []
@@ -513,8 +513,11 @@ class VoiceInputApp:
                 if cmd == "status":
                     self.status_var.set(msg[1])
                 elif cmd == "refined_text":
-                    self.refined_text_widget.delete("1.0", "end")
-                    self.refined_text_widget.insert("1.0", msg[1])
+                    existing = self.refined_text_widget.get("1.0", "end-1c")
+                    if existing:
+                        self.refined_text_widget.insert("end", "\n" + msg[1])
+                    else:
+                        self.refined_text_widget.insert("1.0", msg[1])
                 elif cmd == "enable_buttons":
                     self._set_buttons_state()
                 elif cmd == "show_error":
