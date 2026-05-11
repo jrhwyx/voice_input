@@ -251,12 +251,22 @@ class VoiceInputApp:
 
     def _transcribe(self):
         try:
-            segments, info = self.whisper_model.transcribe(
-                self.audio_filepath,
-                language="zh",
-                beam_size=1,
-                vad_filter=True,
-            )
+            try:
+                segments, info = self.whisper_model.transcribe(
+                    self.audio_filepath,
+                    language="zh",
+                    beam_size=1,
+                    vad_filter=True,
+                )
+            except Exception:
+                # VAD 可能因缺少 onnxruntime 而失败，回退到无 VAD 模式
+                segments, info = self.whisper_model.transcribe(
+                    self.audio_filepath,
+                    language="zh",
+                    beam_size=1,
+                    vad_filter=False,
+                )
+
             text_parts = []
             for seg in segments:
                 text_parts.append(seg.text.lstrip())
